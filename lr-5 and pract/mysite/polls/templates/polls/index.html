@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Опросы</title>
+</head>
+<body>
+    <h1>Список опросов</h1>
+
+    <!-- Приветствие и кнопки входа/выхода -->
+    <nav>
+        {% if user.is_authenticated %}
+            <p>Привет, {{ user.username }}!</p>
+            <a href="{% url 'account_logout' %}">Выйти</a>
+        {% else %}
+            <a href="{% url 'account_login' %}">Войти</a>
+        {% endif %}
+    </nav>
+
+    <!-- Список опросов -->
+    <ul>
+        {% for question in latest_question_list %}
+            <li>
+                <a href="{% url 'polls:detail' question.id %}">
+                    {{ question.question_text }}
+                </a>
+            </li>
+        {% empty %}
+            <p>Нет доступных опросов.</p>
+        {% endfor %}
+    </ul>
+
+    <!-- Кнопка для создания нового опроса -->
+    {% if user.is_authenticated %}
+        <a href="{% url 'polls:create_question' %}">Создать новый опрос</a>
+    {% endif %}
+</body>
+</html>

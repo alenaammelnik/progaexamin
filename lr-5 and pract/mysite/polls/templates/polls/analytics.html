@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Аналитика</title>
+</head>
+<body>
+    <h1>Статистика голосования</h1>
+    <h2>{{ question }}</h2>
+    <img src="data:image/png;base64,{{ chart }}" alt="График голосования">
+
+    <ul>
+        {% for choice in choices %}
+            <li>{{ choice.choice_text }} — {{ choice.votes }} голосов</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

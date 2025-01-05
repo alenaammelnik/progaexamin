@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск голосований</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #results {
+            margin-top: 20px;
+            display: flex;
+        }
+        #polls-list {
+            width: 30%;
+            border-right: 1px solid #ddd;
+            padding-right: 10px;
+        }
+        #poll-details {
+            width: 70%;
+            padding-left: 10px;
+        }
+        .poll-item {
+            cursor: pointer;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        .poll-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Поиск голосований</h1>
+    
+    <!-- Форма поиска -->
+    <form id="search-form">
+        <label for="start-date">Дата начала:</label>
+        <input type="date" id="start-date" name="start-date">
+
+        <label for="end-date">Дата окончания:</label>
+        <input type="date" id="end-date" name="end-date">
+
+        <button type="submit">Искать</button>
+    </form>
+
+    <!-- Результаты -->
+    <div id="results">
+        <div id="polls-list">
+            <h3>Найденные голосования:</h3>
+            <ul id="polls"></ul>
+        </div>
+        <div id="poll-details">
+            <h3>Статистика:</h3>
+            <div id="details"></div>
+        </div>
+    </div>
+
+    <!-- Подключаем JavaScript -->
+    <script>
+        document.getElementById('search-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Получаем даты из формы
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+
+            // Делаем запрос к микросервису
+            fetch(`/analytics/analytics/?start_date=${startDate}&end_date=${endDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    const pollsList = document.getElementById('polls');
+                    pollsList.innerHTML = '';
+
+                    data.forEach(poll => {
+                        const li = document.createElement('li');
+                        li.classList.add('poll-item');
+                        li.textContent = poll.question;
+                        li.dataset.id = poll.id;
+
+                        // Добавляем обработчик клика для показа статистики
+                        li.addEventListener('click', () => loadPollDetails(poll.id));
+                        pollsList.appendChild(li);
+                    });
+                });
+        });
+
+        function loadPollDetails(questionId) {
+            fetch(`/analytics/analytics/${questionId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    const details = document.getElementById('details');
+                    let html = `<h4>${data.question}</h4>`;
+                    html += `<p>Всего голосов: ${data.total_votes}</p>`;
+                    html += `<ul>`;
+                    data.choices.forEach(choice => {
+                        html += `<li>${choice.choice_text} — ${choice.votes} голосов</li>`;
+                    });
+                    html += `</ul>`;
+                    html += `<img src="data:image/png;base64,${data.chart}" alt="График">`;
+                    details.innerHTML = html;
+                });
+        }
+    </script>
+</body>
+</html>

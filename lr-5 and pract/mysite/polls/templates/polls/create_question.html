@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Создание опроса</title>
+</head>
+<body>
+    <h1>Создать новый опрос</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить</button>
+    </form>
+    <a href="{% url 'polls:index' %}">Вернуться к списку опросов</a>
+</body>
+</html>
